@@ -31,26 +31,17 @@ Download the latest **Tether.dmg** (Mac) and **Tether.apk** (Android) from the
 ### Mac
 
 1. Open **Tether.dmg** and drag **Tether.app** to your Applications folder
-2. Because Tether isn't from the App Store, macOS will block it on first launch.
-   Open Terminal and run:
-   ```
-   xattr -rd com.apple.quarantine /Applications/Tether.app
-   ```
-3. Launch Tether from Applications as normal
-
-> The `xattr` command removes the quarantine flag macOS adds to files downloaded
-> from the internet. It's a one-time step and is safe to run on your own app.
+2. Double-click **Tether** in Applications — macOS will say it can't be opened
+3. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**
+4. Tether will launch and this prompt won't appear again
 
 ### Android
 
 1. Transfer **Tether.apk** to your phone — Google Drive, email, or a USB cable all work
-2. On your phone, open the APK file from your Downloads folder or Files app
-3. Tap **Install**
-   - If Android asks to enable *Install unknown apps*, tap **Settings**, enable it
-     for the current app, then go back and tap **Install** again
-   - If Google Play Protect warns about the app, tap **Install anyway** — it flags
-     any APK not distributed through the Play Store, not because anything is wrong
-4. Open **Tether** from your app drawer
+2. Open the APK file from your Downloads folder or Files app and tap **Install**
+   - If asked to enable *Install unknown apps*, tap **Settings**, turn it on, then go back and tap **Install**
+   - If Google Play Protect shows a warning, tap **Install anyway**
+3. Open **Tether** from your app drawer and grant the permissions it asks for
 
 ## Features
 
@@ -99,14 +90,13 @@ node bundle-release.js   # build the JS bundle
 ```
 
 ### Android app
-Requires Android Studio, JDK 17, Android SDK 35.
+Requires Android Studio with JDK 17 and Android SDK 35. Open `android-app/` in
+Android Studio and use **Build → Build APK**, or run:
 
 ```bash
 cd android-app
 ./gradlew assembleDebug   # outputs app/build/outputs/apk/debug/app-debug.apk
 ```
-
-Or open `android-app/` in Android Studio and use **Build → Build APK**.
 
 ## Security
 
