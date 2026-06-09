@@ -211,6 +211,8 @@ private fun TetherApp(screenConsentRequested: MutableState<Boolean> = mutableSta
 
             AppearanceCard()
 
+            AutoDisconnectCard()
+
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -471,6 +473,71 @@ private fun AppearanceCard() {
                                 else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutoDisconnectCard() {
+    val currentOption by ThemeStore.disconnectOption.collectAsState()
+    val currentCustomHours by ThemeStore.disconnectCustomHours.collectAsState()
+    var customInput by remember { mutableStateOf(currentCustomHours.toString()) }
+
+    val options = listOf(
+        "never"  to "Until app quits",
+        "1h"     to "1 hour",
+        "5h"     to "5 hours",
+        "12h"    to "12 hours",
+        "custom" to "Custom",
+    )
+
+    EditorialCard {
+        SectionTitle("Auto-disconnect")
+        Text(
+            "Automatically disconnect after the phone has been linked for this long.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        options.forEach { (key, label) ->
+            val selected = currentOption == key
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+            ) {
+                RadioButton(
+                    selected = selected,
+                    onClick = { ThemeStore.setDisconnectOption(key) },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary,
+                    ),
+                )
+                Text(
+                    label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 4.dp),
+                )
+            }
+        }
+        if (currentOption == "custom") {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp),
+            ) {
+                OutlinedTextField(
+                    value = customInput,
+                    onValueChange = { v ->
+                        customInput = v.filter { it.isDigit() }
+                        customInput.toIntOrNull()?.let { ThemeStore.setDisconnectCustomHours(it.coerceAtLeast(1)) }
+                    },
+                    modifier = Modifier.width(80.dp),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                )
+                Text("hours", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, TextInput, ScrollView, Switch} from 'react-native';
+import {View, Text, TouchableOpacity, TextInput, ScrollView, Switch, Platform} from 'react-native';
 import {useTheme} from './theme';
 import {PageTitle} from './components';
 import {connection} from '../net/ConnectionManager';
 import {autoConnect} from '../features/autoConnect';
 import {parsePairingPayload} from '../net/pairing';
+import {DisconnectOption} from '../util/store';
 import {
+  useAutoDisconnect,
   useClipboardSync,
   useConnectionState,
   useDiscovery,
@@ -31,8 +33,10 @@ export function DevicesScreen(): React.JSX.Element {
   const peer = usePeer();
   const status = usePhoneStatus();
   const clipboard = useClipboardSync();
+  const autoDisconnect = useAutoDisconnect();
   const [code, setCode] = useState('');
   const [urlInput, setUrlInput] = useState('');
+  const [customHours, setCustomHours] = useState(String(autoDisconnect.setting.customHours));
 
   const connected = state === 'connected';
 
@@ -141,6 +145,55 @@ export function DevicesScreen(): React.JSX.Element {
           </TouchableOpacity>
         </View>
       )}
+
+      <View style={s.card}>
+        <Text style={s.h2}>Auto-disconnect</Text>
+        <Text style={s.dim}>Automatically disconnect after the phone has been linked for this long.</Text>
+        {(
+          [
+            ['never', 'Until app quits'],
+            ['1h',    '1 hour'],
+            ['5h',    '5 hours'],
+            ['12h',   '12 hours'],
+            ['custom','Custom'],
+          ] as [DisconnectOption, string][]
+        ).map(([key, label]) => {
+          const selected = autoDisconnect.setting.option === key;
+          return (
+            <TouchableOpacity
+              key={key}
+              style={[s.row, {paddingVertical: 4}]}
+              onPress={() => autoDisconnect.update({
+                option: key,
+                customHours: Number(customHours) || 2,
+              })}>
+              <View style={{
+                width: 16, height: 16, borderRadius: 8,
+                borderWidth: 2, borderColor: selected ? colors.accent : colors.border,
+                backgroundColor: selected ? colors.accent : 'transparent',
+                marginRight: 10, marginTop: 1,
+              }} />
+              <Text style={[s.body, {flex: 1}]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+        {autoDisconnect.setting.option === 'custom' && (
+          <View style={[s.row, {marginTop: 6, gap: 8}]}>
+            <TextInput
+              style={[s.input, {width: 80, textAlign: 'center'}]}
+              keyboardType="numeric"
+              value={customHours}
+              onChangeText={setCustomHours}
+              onEndEditing={() => autoDisconnect.update({
+                option: 'custom',
+                customHours: Math.max(1, Number(customHours) || 2),
+              })}
+              placeholderTextColor={colors.textDim}
+            />
+            <Text style={s.body}>hours</Text>
+          </View>
+        )}
+      </View>
 
       <View style={s.card}>
         <Text style={s.h2}>Discovered phones</Text>

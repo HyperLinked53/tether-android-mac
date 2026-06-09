@@ -61,6 +61,25 @@ export async function listPairedDeviceIds(): Promise<string[]> {
     .map(k => k.slice('token:'.length));
 }
 
+// ─── Auto-disconnect setting ───────────────────────────────────────────────
+
+export type DisconnectOption = 'never' | '1h' | '5h' | '12h' | 'custom';
+
+export interface AutoDisconnectSetting {
+  option: DisconnectOption;
+  customHours: number; // only used when option === 'custom'
+}
+
+const DEFAULT_AUTO_DISCONNECT: AutoDisconnectSetting = {option: 'never', customHours: 2};
+
+export async function getAutoDisconnect(): Promise<AutoDisconnectSetting> {
+  return (await getItem<AutoDisconnectSetting>('autoDisconnect')) ?? DEFAULT_AUTO_DISCONNECT;
+}
+
+export const setAutoDisconnect = (v: AutoDisconnectSetting) => setItem('autoDisconnect', v);
+
+// ─── Last address ──────────────────────────────────────────────────────────
+
 /** Last address a device was reachable at — lets us reconnect instantly without waiting for mDNS. */
 export interface LastAddress {
   host: string;

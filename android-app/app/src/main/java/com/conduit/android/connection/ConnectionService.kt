@@ -11,7 +11,9 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import com.conduit.android.features.CameraCapture
 import com.conduit.android.features.CameraHandler
@@ -28,6 +30,7 @@ import com.conduit.android.features.OpenUrlHandler
 import com.conduit.android.features.RingHandler
 import com.conduit.android.features.StatusHandler
 import com.conduit.android.ui.MainActivity
+import com.conduit.android.ui.theme.ThemeStore
 import com.conduit.android.state.ConduitState
 import com.conduit.android.state.PairingInfo
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +62,8 @@ class ConnectionService : Service() {
     private lateinit var media: MediaHandler
     private var server: ConduitServer? = null
     private var multicastLock: WifiManager.MulticastLock? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var disconnectRunnable: Runnable? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -103,7 +108,10 @@ class ConnectionService : Service() {
         acquireMulticastLock()
 
         server = ConduitServer(DEFAULT_PORT, scope, pairing, selfInfo, handlers).also {
-            it.onPeerAuthenticated = { media.pushCurrentState() }
+            it.onPeerAuthenticated = {
+                media.pushCurrentState()
+                scheduleDisconnectTimer()
+            }
             it.start()
         }
         advertiser.register(DEFAULT_PORT, selfInfo.id, selfInfo.name)
@@ -125,9 +133,31 @@ class ConnectionService : Service() {
         runCatching { micServer.stop() }
         runCatching { clipboard.unregisterListener() }
         multicastLock?.let { if (it.isHeld) it.release() }
+        cancelDisconnectTimer()
         scope.cancel()
         instance = null
         super.onDestroy()
+    }
+
+    // ---- Auto-disconnect timer ---------------------------------------------
+
+    private fun scheduleDisconnectTimer() {
+        cancelDisconnectTimer()
+        val delayMs = ThemeStore.disconnectDelayMs() ?: return
+        val r = Runnable {
+            disconnectRunnable = null
+            server?.primarySession()?.let { session ->
+                ConduitState.logEvent("Auto-disconnecting after timer")
+                runCatching { session.conn.close() }
+            }
+        }
+        disconnectRunnable = r
+        mainHandler.postDelayed(r, delayMs)
+    }
+
+    private fun cancelDisconnectTimer() {
+        disconnectRunnable?.let { mainHandler.removeCallbacks(it) }
+        disconnectRunnable = null
     }
 
     // ---- UI-initiated actions ----------------------------------------------

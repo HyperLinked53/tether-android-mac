@@ -13,6 +13,8 @@ import {photos} from './features/photos';
 import {PhotoItem} from './protocol/types';
 import {notifications} from './features/notifications';
 import {media} from './features/media';
+import {autoConnect} from './features/autoConnect';
+import {AutoDisconnectSetting, getAutoDisconnect} from './util/store';
 import {cameraWebcam, CameraState} from './features/cameraWebcam';
 import {DeviceInfo, MediaInfoPayload, NotifPostedPayload, StatusReportPayload} from './protocol/types';
 
@@ -156,4 +158,17 @@ export function useCameraWebcam(): CameraState {
     return cameraWebcam.onChange(setState);
   }, []);
   return state;
+}
+
+export function useAutoDisconnect(): {
+  setting: AutoDisconnectSetting;
+  update: (s: AutoDisconnectSetting) => void;
+} {
+  const [setting, setSetting] = useState<AutoDisconnectSetting>({option: 'never', customHours: 2});
+  useEffect(() => { void getAutoDisconnect().then(setSetting); }, []);
+  function update(s: AutoDisconnectSetting) {
+    setSetting(s);
+    void autoConnect.updateSetting(s);
+  }
+  return {setting, update};
 }
