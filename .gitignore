@@ -35,3 +35,4 @@ mac-app/macos/DerivedData/
 .vscode/
 .idea/
 android-app/.kotlin/
+mac-app/macos/build/
