@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App Sandbox disabled: a sandboxed app can't hand notification image attachments to the
+	     system notification daemon ("Failed to move attachment file into data store"). This is a
+	     local/sideloaded utility, not a Mac App Store build, so running unsandboxed is acceptable.
+	     Network + file access (WebSocket, RNFS) work freely without the sandbox. -->
+	<key>com.apple.security.app-sandbox</key>
+	<false/>
+</dict>
+</plist>

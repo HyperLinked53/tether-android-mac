@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Networking + local discovery -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Resolve the source app's launcher icon + label for mirrored notifications. On Android 11+
+         package-visibility rules otherwise hide other apps' info. (Play Console requires a
+         justification for this; fine for a personal/sideloaded build.) -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- Vibrate for "Ring phone" find-my-phone -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Foreground service that hosts the connection -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Browse the phone's whole file tree from the Mac. All-files-access is granted by the user
+         via a system-settings toggle (requested from MainActivity). Heavyweight + Play-restricted,
+         but fine for a personal/sideloaded build (cf. QUERY_ALL_PACKAGES above). -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <!-- Photos tab: read the phone's image gallery (MediaStore). READ_MEDIA_IMAGES on 13+, the
+         legacy storage read on 12 and below. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- Text messaging: read history (SMS+MMS), send SMS, live inbound, contact names -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- Screen mirroring + optional audio routing to the Mac (AudioPlaybackCapture) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <!-- Phone as webcam: camera capture streamed to the Mac over a raw TCP socket -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="Tether"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Tether"
+        tools:targetApi="35">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:label="Tether">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Foreground service: WebSocket server + NSD advertising live here -->
+        <service
+            android:name=".connection.ConnectionService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync|mediaProjection|microphone|camera" />
+
+        <!-- Notification mirroring (scaffold). User must grant access in Settings. -->
+        <service
+            android:name=".features.ConduitNotificationListener"
+            android:exported="false"
+            android:label="Tether Notifications"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Live inbound SMS → pushed to the Mac. Only the system can send this broadcast. -->
+        <receiver
+            android:name=".features.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Phone-as-trackpad: full-screen touch surface that sends cursor events to the Mac. -->
+        <activity
+            android:name=".ui.TouchpadActivity"
+            android:exported="false"
+            android:label="Remote Cursor" />
+
+        <!-- Remote control via accessibility (taps/swipes/typing from the Mac). User enables it
+             in Settings → Accessibility. -->
+        <service
+            android:name=".features.ConduitInputService"
+            android:exported="false"
+            android:label="Tether Remote Control"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+    </application>
+</manifest>

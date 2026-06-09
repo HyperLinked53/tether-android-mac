@@ -1,0 +1,95 @@
+require_relative '../node_modules/react-native-macos/scripts/react_native_pods'
+# react-native-macos 0.76 exposes use_native_modules! via its own autolinking.rb (required above),
+# so the old @react-native-community/cli-platform-ios/native_modules require is no longer needed.
+
+prepare_react_native_project!
+
+target 'conduit-mac-macOS' do
+  platform :macos, '11.0'
+  use_native_modules!
+
+  # Flags change depending on the env values.
+  flags = get_default_flags()
+
+  use_react_native!(
+    :path => '../node_modules/react-native-macos',
+    :hermes_enabled => false,
+    :fabric_enabled => ENV['RCT_NEW_ARCH_ENABLED'] == '1',
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    react_native_post_install(installer)
+
+    # CocoaPods renames folly subdirectories like folly/json/ → "folly/json 2/" when a same-stem
+    # file (folly/json.h) exists alongside the directory. This leaves headers such as
+    # folly/json/dynamic.h and folly/detail/RangeCommon.h missing from the Public headers tree,
+    # causing fatal include errors. Copy any missing headers from the source tree.
+    folly_pub_root = File.join(__dir__, 'Pods', 'Headers', 'Public', 'RCT-Folly', 'folly')
+    folly_src_root = File.join(__dir__, 'Pods', 'RCT-Folly', 'folly')
+    if File.directory?(folly_src_root) && File.directory?(folly_pub_root)
+      Dir[File.join(folly_src_root, '**', '*.h')].each do |src_h|
+        rel = src_h[folly_src_root.length + 1..]
+        dst_h = File.join(folly_pub_root, rel)
+        unless File.exist?(dst_h)
+          FileUtils.mkdir_p(File.dirname(dst_h))
+          FileUtils.cp(src_h, dst_h)
+          Pod::UI.puts "[Conduit] Copied missing folly/#{rel} to public headers"
+        end
+      end
+    end
+    # Xcode 16+/clang rejects fmt 11.0.2's consteval format-string path
+    # ("call to consteval function ... is not a constant expression"). RN 0.76 pins fmt 11.0.2.
+    # fmt's base.h *unconditionally* #defines FMT_USE_CONSTEVAL (no #ifndef guard), so a -D flag
+    # can't override it — patch the header to force the well-supported non-consteval path.
+    fmt_base = File.join(__dir__, 'Pods', 'fmt', 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      src = File.read(fmt_base)
+      patched = src.gsub('#  define FMT_USE_CONSTEVAL 1', '#  define FMT_USE_CONSTEVAL 0')
+      if patched != src
+        File.chmod(0644, fmt_base) # pod sources are checked out read-only
+        File.write(fmt_base, patched)
+        Pod::UI.puts '[Conduit] Patched fmt base.h to disable consteval (Xcode 16+ workaround)'
+      end
+    end
+
+    # The ConduitNotifier / ConduitDragSource native modules live in AppDelegate.mm. They need
+    # things the default app target doesn't provide:
+    #   1. UserNotifications.framework (ConduitNotifier) + UniformTypeIdentifiers.framework
+    #      (ConduitDragSource, for filename→UTI) — linked explicitly because this .mm has C++ modules
+    #      disabled and so can't @import (which would auto-link).
+    #   2. Folly headers/defines — including <React/RCTEventEmitter.h> transitively pulls
+    #      <folly/dynamic.h>, which resolves only via $(PODS_ROOT)/RCT-Folly (the React pods get this
+    #      path + FOLLY_* defines; the app target doesn't by default).
+    folly_defines = %w[FOLLY_NO_CONFIG=1 FOLLY_MOBILE=1 FOLLY_USE_LIBCPP=1 FOLLY_CFG_NO_COROUTINES=1]
+    installer.aggregate_targets.each do |agg|
+      project = agg.user_project
+      next unless project
+      project.native_targets.each do |t|
+        next unless t.name == 'conduit-mac-macOS'
+        t.build_configurations.each do |config|
+          bs = config.build_settings
+
+          ldflags = Array(bs['OTHER_LDFLAGS'] || ['$(inherited)'])
+          # UserNotifications (ConduitNotifier), UniformTypeIdentifiers (ConduitDragSource),
+          # AVFoundation/CoreMedia/CoreVideo (ConduitMirror — H.264 → AVSampleBufferDisplayLayer).
+          %w[UserNotifications UniformTypeIdentifiers AVFoundation CoreMedia CoreVideo AudioToolbox CoreAudio].each do |fw|
+            ldflags += ['-framework', fw] unless ldflags.include?(fw)
+          end
+          bs['OTHER_LDFLAGS'] = ldflags
+
+          hsp = Array(bs['HEADER_SEARCH_PATHS'] || ['$(inherited)'])
+          unless hsp.any? { |p| p.include?('RCT-Folly') && !p.include?('Headers/Public') }
+            bs['HEADER_SEARCH_PATHS'] = hsp + ['"$(PODS_ROOT)/RCT-Folly"']
+          end
+
+          defs = Array(bs['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)'])
+          folly_defines.each { |d| defs << d unless defs.include?(d) }
+          bs['GCC_PREPROCESSOR_DEFINITIONS'] = defs
+        end
+      end
+      project.save
+    end
+  end
+end

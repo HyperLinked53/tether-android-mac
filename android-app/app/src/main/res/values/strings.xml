@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tether</string>
+    <string name="conn_channel_name">Tether connection</string>
+    <string name="conn_notification_title">Tether is linked</string>
+    <string name="accessibility_description">Lets your paired Mac control this phone (taps, swipes, typing) while screen mirroring.</string>
+</resources>

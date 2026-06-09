@@ -1,0 +1,37 @@
+{
+  "name": "tether-mac",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node start-metro.js",
+    "start-cli": "react-native start",
+    "macos": "react-native run-macos",
+    "lint": "eslint .",
+    "tsc": "tsc --noEmit",
+    "pods": "cd macos && pod install"
+  },
+  "dependencies": {
+    "@noble/ciphers": "^1.3.0",
+    "@react-native-clipboard/clipboard": "^1.15.0",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-fs": "^2.20.0",
+    "react-native-macos": "0.76.12",
+    "react-native-zeroconf": "^0.13.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@babel/preset-env": "^7.25.0",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "^15.1.3",
+    "@react-native-community/cli-platform-ios": "^15.1.3",
+    "@react-native/babel-preset": "0.76.9",
+    "@react-native/metro-config": "0.76.9",
+    "@react-native/typescript-config": "0.76.9",
+    "@types/react": "^18.3.0",
+    "typescript": "5.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

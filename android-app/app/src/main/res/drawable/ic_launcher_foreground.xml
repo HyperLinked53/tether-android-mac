@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon foreground: 108×108dp canvas, safe zone is the centre 72×72dp.
+  The design maps from the 1024-unit SVG viewBox scaled to fit the 72dp safe zone
+  (centred with 18dp margin on each side).
+  Scale factor: 72/1024 ≈ 0.0703 → all coordinates multiplied.
+  Origin offset: 18dp margin, so add 18 to x/y after scaling.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Phone body -->
+    <path
+        android:fillColor="#1C1814"
+        android:pathData="
+          M 22.0,44.5 Q 22.0,41.0 25.5,41.0
+          L 43.9,41.0 Q 47.4,41.0 47.4,44.5
+          L 47.4,70.7 Q 47.4,74.2 43.9,74.2
+          L 25.5,74.2 Q 22.0,74.2 22.0,70.7 Z"/>
+
+    <!-- Phone screen -->
+    <path
+        android:fillColor="#F9F6F1"
+        android:pathData="
+          M 24.7,49.9 Q 24.7,48.0 26.6,48.0
+          L 42.7,48.0 Q 44.6,48.0 44.6,49.9
+          L 44.6,67.2 Q 44.6,69.1 42.7,69.1
+          L 26.6,69.1 Q 24.7,69.1 24.7,67.2 Z"/>
+
+    <!-- Phone pill notch -->
+    <path
+        android:fillColor="#F9F6F1"
+        android:pathData="M 30.5,43.5 Q 30.5,42.5 31.5,42.5 L 37.8,42.5 Q 38.8,42.5 38.8,43.5 Q 38.8,44.6 37.8,44.6 L 31.5,44.6 Q 30.5,44.6 30.5,43.5 Z"/>
+
+    <!-- Phone home bar -->
+    <path
+        android:fillColor="#F9F6F1"
+        android:pathData="M 30.0,72.3 Q 30.0,71.6 30.7,71.6 L 38.6,71.6 Q 39.3,71.6 39.3,72.3 Q 39.3,73.0 38.6,73.0 L 30.7,73.0 Q 30.0,73.0 30.0,72.3 Z"/>
+
+    <!-- Mac screen bezel -->
+    <path
+        android:fillColor="#1C1814"
+        android:pathData="
+          M 58.7,39.7 Q 58.7,38.3 60.1,38.3
+          L 87.5,38.3 Q 88.9,38.3 88.9,39.7
+          L 88.9,57.9 Q 88.9,59.3 87.5,59.3
+          L 60.1,59.3 Q 58.7,59.3 58.7,57.9 Z"/>
+
+    <!-- Mac screen glass -->
+    <path
+        android:fillColor="#F9F6F1"
+        android:pathData="
+          M 60.6,41.1 Q 60.6,40.1 61.6,40.1
+          L 86.0,40.1 Q 87.0,40.1 87.0,41.1
+          L 87.0,55.7 Q 87.0,56.7 86.0,56.7
+          L 61.6,56.7 Q 60.6,56.7 60.6,55.7 Z"/>
+
+    <!-- Mac chin bar (rounded rect as path: x=58.7 y=59.3 w=30.2 h=2.2 rx=1.1) -->
+    <path
+        android:fillColor="#1C1814"
+        android:pathData="M 59.8,59.3 H 87.8 A 1.1,1.1 0 0 1 88.9,60.4 V 60.4 A 1.1,1.1 0 0 1 87.8,61.5 H 59.8 A 1.1,1.1 0 0 1 58.7,60.4 V 60.4 A 1.1,1.1 0 0 1 59.8,59.3 Z"/>
+
+    <!-- Mac base (rounded rect as path: x=55.6 y=61.5 w=36.5 h=2.1 rx=1.05) -->
+    <path
+        android:fillColor="#1C1814"
+        android:pathData="M 56.65,61.5 H 91.05 A 1.05,1.05 0 0 1 92.1,62.55 V 62.55 A 1.05,1.05 0 0 1 91.05,63.6 H 56.65 A 1.05,1.05 0 0 1 55.6,62.55 V 62.55 A 1.05,1.05 0 0 1 56.65,61.5 Z"/>
+
+    <!-- Signal arc 1 (innermost, terracotta) -->
+    <path
+        android:strokeColor="#C25C2A"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 47.4,54.3 A 4.4,4.4 0 0 1 47.4,61.4"/>
+
+    <!-- Signal arc 2 -->
+    <path
+        android:strokeColor="#C25C2A"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 47.4,50.6 A 7.8,7.8 0 0 1 47.4,65.1"/>
+
+    <!-- Signal arc 3 (outermost) -->
+    <path
+        android:strokeColor="#C25C2A"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 47.4,46.9 A 11.1,11.1 0 0 1 47.4,68.8"/>
+
+</vector>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
+    <string>ConduitVirtualCamera</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.conduit.virtualcamera</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>ConduitVirtualCamera</string>
+    <key>CFBundlePackageType</key>
+    <string>BNDL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <!-- CFPlugin: register this bundle as a CMIO hardware plug-in. -->
+    <key>CFPlugInFactories</key>
+    <dict>
+        <!-- Factory UUID — must match the symbol name below -->
+        <key>FAD94F53-E2F8-4B03-9C82-D25A82B0D21A</key>
+        <string>ConduitVirtualCameraFactory</string>
+    </dict>
+    <key>CFPlugInTypes</key>
+    <dict>
+        <!-- kCMIOHardwarePlugInTypeID -->
+        <key>30010C1C-93BF-11D8-8B5B-000A95AF9C6A</key>
+        <array>
+            <string>FAD94F53-E2F8-4B03-9C82-D25A82B0D21A</string>
+        </array>
+    </dict>
+</dict>
+</plist>

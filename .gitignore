@@ -1,0 +1,37 @@
+# Dependencies
+mac-app/node_modules/
+mac-app/macos/Pods/
+
+# Generated build artifacts
+mac-app/macos/conduit-mac-macOS/main.jsbundle
+mac-app/macos/conduit-mac-macOS/main.jsbundle.js
+android-app/.gradle/
+android-app/app/build/
+android-app/build/
+android-app/local.properties
+
+# Xcode
+mac-app/macos/*.xcworkspace/xcuserdata/
+mac-app/macos/*.xcodeproj/xcuserdata/
+mac-app/macos/conduit-mac.xcworkspace/xcshareddata/swiftpm/
+mac-app/macos/DerivedData/
+
+# Metro
+.metro-health-check*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Installers (distributed via GitHub Releases, not committed)
+*.dmg
+*.apk
+
+# Env / secrets
+.env
+*.env.local
+
+# Editor
+.vscode/
+.idea/
+android-app/.kotlin/

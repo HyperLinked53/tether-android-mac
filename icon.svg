@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Warm cream background -->
+  <rect width="1024" height="1024" rx="224" fill="#f9f6f1"/>
+
+  <!-- ── Phone (portrait, left) ──────────────────────────────── -->
+  <rect x="128" y="322" width="212" height="380" rx="36" fill="#1c1814"/>
+  <!-- Screen -->
+  <rect x="156" y="372" width="156" height="285" rx="14" fill="#f9f6f1"/>
+  <!-- Dynamic island pill -->
+  <rect x="202" y="338" width="64" height="17" rx="8.5" fill="#f9f6f1"/>
+  <!-- Home bar -->
+  <rect x="196" y="672" width="76" height="11" rx="5.5" fill="#f9f6f1"/>
+
+  <!-- ── Mac screen (right) ──────────────────────────────────── -->
+  <!-- Lid / screen bezel -->
+  <rect x="578" y="288" width="342" height="248" rx="20" fill="#1c1814"/>
+  <!-- Screen glass -->
+  <rect x="600" y="308" width="298" height="208" rx="10" fill="#f9f6f1"/>
+  <!-- Chin bar -->
+  <rect x="578" y="536" width="342" height="22" rx="5" fill="#1c1814"/>
+  <!-- Base / palm rest -->
+  <rect x="536" y="558" width="426" height="22" rx="11" fill="#1c1814"/>
+
+  <!-- ── Signal arcs (terracotta) ────────────────────────────── -->
+  <!-- Three concentric rightward-facing arcs centered at (352, 512) -->
+  <!-- Arc radii: 52, 100, 148 px — stroke 22px rounded caps       -->
+  <path d="M 352,460 A 52,52 0 0 1 352,564"
+        fill="none" stroke="#c25c2a" stroke-width="22" stroke-linecap="round"/>
+  <path d="M 352,412 A 100,100 0 0 1 352,612"
+        fill="none" stroke="#c25c2a" stroke-width="22" stroke-linecap="round"/>
+  <path d="M 352,364 A 148,148 0 0 1 352,660"
+        fill="none" stroke="#c25c2a" stroke-width="22" stroke-linecap="round"/>
+</svg>
