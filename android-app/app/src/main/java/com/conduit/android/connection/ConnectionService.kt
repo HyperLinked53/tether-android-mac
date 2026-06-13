@@ -37,6 +37,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 const val APP_VERSION = "0.1.0"
 
@@ -220,7 +222,8 @@ class ConnectionService : Service() {
     /** Re-issue the foreground notification including the mediaProjection FGS type (Android 14+). */
     private fun promoteForegroundForProjection() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
-        val notification = foregroundNotification()
+        val connectedName = ConduitState.peers.value.firstOrNull { it.authenticated }?.name
+        val notification = foregroundNotification(connectedName)
         // microphone type covers AudioPlaybackCapture (AudioRecord) used for "audio → Mac".
         startForeground(NOTIF_ID, notification,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
@@ -230,12 +233,30 @@ class ConnectionService : Service() {
 
     // ---- foreground plumbing -----------------------------------------------
 
-    private fun foregroundNotification(): Notification = Notification.Builder(this, CHANNEL)
-        .setContentTitle("Tether is linked")
-        .setContentText("Your phone is reachable from your Mac")
-        .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
-        .setOngoing(true)
-        .build()
+    private fun foregroundNotification(connectedPeerName: String? = null): Notification {
+        val title: String
+        val text: String
+        if (connectedPeerName != null) {
+            title = "Tether is linked"
+            text = "Connected to $connectedPeerName"
+        } else {
+            title = "Tether is ready"
+            text = "Listening for your Mac…"
+        }
+        return Notification.Builder(this, CHANNEL)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
+            .setOngoing(true)
+            .build()
+    }
+
+    private fun updateForegroundNotification() {
+        val connectedName = ConduitState.peers.value
+            .firstOrNull { it.authenticated }?.name
+        val nm = getSystemService(NotificationManager::class.java)
+        nm.notify(NOTIF_ID, foregroundNotification(connectedName))
+    }
 
     private fun startForegroundNotification() {
         val nm = getSystemService(NotificationManager::class.java)
@@ -250,6 +271,9 @@ class ConnectionService : Service() {
         } else {
             startForeground(NOTIF_ID, notification)
         }
+        ConduitState.peers
+            .onEach { updateForegroundNotification() }
+            .launchIn(scope)
     }
 
     private fun acquireMulticastLock() {
