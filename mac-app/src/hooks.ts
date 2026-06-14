@@ -40,13 +40,16 @@ export function usePeer(): DeviceInfo | null {
 }
 
 export function usePairing(): {required: boolean; error: string | null} {
-  const [required, setRequired] = useState(false);
+  const [required, setRequired] = useState(() => connection.getState() === 'pairing');
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
+    setRequired(connection.getState() === 'pairing');
     const offReq = connection.on('pairingRequired', () => setRequired(true));
     const offFail = connection.on('pairingFailed', msg => setError(msg));
     const offState = connection.on('state', s => {
-      if (s === 'connected') {
+      if (s === 'pairing') {
+        setRequired(true);
+      } else if (s === 'connected') {
         setRequired(false);
         setError(null);
       } else if (s === 'idle') {
